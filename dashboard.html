@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Tax Calculator</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>WeTAX</h2>
+      <nav>
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="transaction.html">Transactions</a>
+        <a href="account.html">Accounts</a>
+        <a href="profile.html">Profile</a>
+        <a href="index.html" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Dashboard</h1>
+      </header>
+
+      <section class="cards">
+        <div class="card">
+          <h3>Total Asset</h3>
+          <p id="totalIncome">$0</p>
+        </div>
+        <div class="card">
+          <h3>Total Expenses</h3>
+          <p id="totalExpenses">$0</p>
+        </div>
+        <div class="card">
+          <h3>Tax Payable</h3>
+          <p id="totalTax">$0</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Recent Transactions</h2>
+        <table id="recentTransactions">
+          <thead>
+            <tr>
+              <th>Date</th><th>Symbol</th><th>Type</th><th>Amount</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

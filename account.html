@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accounts | Tax Calculator</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>WeTAX</h2>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="transaction.html">Transactions</a>
+        <a href="account.html" class="active">Accounts</a>
+        <a href="profile.html">Profile</a>
+        <a href="index.html" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Accounts</h1>
+        <button id="addAccountBtn" class="btn">+ Add Account</button>
+      </header>
+
+      <section>
+        <table id="accountTable">
+          <thead>
+            <tr><th>Name</th><th>Balance</th><th>Actions</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+  <script src="js/account.js"></script>
+</body>
+</html>
