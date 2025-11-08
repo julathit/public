@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${a.name}</td>
         <td>$${a.balance.toFixed(2)}</td>
         <td><button onclick="deleteAccount(${i})">Delete</button></td>
-        <td><button onclick="loginAccount(${i})">Login</button></td>  </tr>
+        <td><button onclick="loginAccount(${i})">select</button></td>  </tr>
     `).join("");
   }
 
