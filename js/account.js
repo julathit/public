@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${a.name}</td>
         <td>$${a.balance.toFixed(2)}</td>
         <td><button onclick="deleteAccount(${i})">Delete</button></td>
-      </tr>
+        <td><button onclick="loginAccount(${i})">Login</button></td>  </tr>
     `).join("");
   }
 
@@ -28,9 +28,27 @@ document.addEventListener("DOMContentLoaded", () => {
   render();
 });
 
+// Existing function for deleting an account
 function deleteAccount(i) {
   const accounts = JSON.parse(localStorage.getItem("accounts")) || [];
   accounts.splice(i, 1);
   localStorage.setItem("accounts", JSON.stringify(accounts));
-  location.reload();
+  // Call render() instead of location.reload() for better user experience
+  // but keeping location.reload() for simplicity with external functions:
+  location.reload(); 
+}
+
+// ⭐ NEW FUNCTION: Handles the "login" action and redirection
+function loginAccount(i) {
+    // 1. (Optional) Store which account is "logged in" for the dashboard to use
+    const accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+    const loggedInAccount = accounts[i];
+    
+    // You could save the selected account's index or ID to sessionStorage/localStorage
+    // for your dashboard page to retrieve. Example:
+    sessionStorage.setItem("loggedInAccountIndex", i);
+    console.log(`Logging in with account: ${loggedInAccount.name}`);
+
+    // 2. Redirect the user to the dashboard page
+    window.location.href = "dashboard.html"; // ⭐ CHANGE 'dashboard.html' to your actual dashboard URL
 }
