@@ -1,58 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Transaction | Tax Calculator</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Transaction | Tax Calculator</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="layout">
-    <aside class="sidebar">
-      <h2>WeTAX</h2>
-      <nav>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="transaction.html" class="active">Transactions</a>
-        <a href="account.html">Accounts</a>
-        <a href="profile.html">Profile</a>
-        <a href="index.html" id="logoutBtn">Logout</a>
-      </nav>
-    </aside>
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>WeTAX</h2>
+            <nav>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="transaction.html" class="active">Transactions</a>
+                <a href="account.html">Accounts</a>
+                <a href="profile.html">Profile</a>
+                <a href="index.html" id="logoutBtn">Logout</a>
+            </nav>
+        </aside>
 
-    <main class="main-content">
-      <header class="topbar">
-        <h1>Add Transaction</h1>
-      </header>
+        <main class="main-content">
+            <header class="topbar">
+                <h1>Add Transaction</h1>
+            </header>
 
-      <form id="addTransactionForm" class="form-card">
+            <form id="transactionForm">
+                <label for="tOption">Transaction Option:</label>
+                <select id="tOption" name="transaction_option" required>
+                    <option value="">-- Select Option --</option>
+                    <option value="exchange">Exchange</option>
+                    <option value="trade_us">Trade US</option>
+                    <option value="trade_th">Trade TH</option>
+                </select>
 
-        <label>Option:</label>
-        <select id="tOption" required>
-          <option value="exchange">exchange</option>
-          <option value="tradeTH">tradeTH</option>
-          <option value="tradeUS">tradeUS</option>
-        </select>
+                <div id="dynamicFields"></div>
 
-        <label>Date:</label>
-        <input type="date" id="tDate" required>
+                <button type="submit">Save Transaction</button>
+            </form>
+            
+            <script>
+            // Dynamic field generation logic
+            const tOption = document.getElementById("tOption");
+            const dynamicFields = document.getElementById("dynamicFields");
 
-        <label>Symbol:</label>
-        <input type="text" id="tDesc" placeholder="Description" required>
+            // Function to generate the Exchange fields HTML
+            function generateExchangeFields() {
+                return `
+                    <label for="tType">Transaction Type:</label>
+                    <select id="tType" name="transaction_type" required>
+                        <option value="buy">Buy (USD from THB)</option>
+                        <option value="sell">Sell (THB from USD)</option>
+                    </select>
 
-        <label>Type:</label>
-        <select id="tType" required>
-          <option value="buy">buy</option>
-          <option value="sell">sell</option>
-        </select>
+                    <div id="thbInputGroup">
+                        <label for="tAmountTHB">Amount (THB) - Input:</label>
+                        <input type="number" id="tAmountTHB" name="amount_thb_input" placeholder="e.g. 30015.00" step="0.01" required>
+                    </div>
 
-        <label>Amount:</label>
-        <input type="number" id="tAmount" placeholder="Amount" required>
+                    <div id="usdInputGroup" style="display:none;">
+                        <label for="tAmountUSD">Amount (USD) - Input:</label>
+                        <input type="number" id="tAmountUSD" name="amount_usd_input" placeholder="e.g. 900.00" step="0.01" required>
+                    </div>
 
-        <button type="submit">Save Transaction</button>
-      </form>
-    </main>
-  </div>
-  <script src="js/main.js"></script>
-  <script src="js/transaction.js"></script>
+                    <label for="tRate">Exchange Rate (THB/USD):</label>
+                    <input type="number" id="tRate" name="exchange_rate" placeholder="e.g. 33.35" step="0.01" required>
+
+                    <label for="tCalculatedAmount">Calculated Amount (read-only):</label>
+                    <input type="text" id="tCalculatedAmount" name="calculated_amount" readonly>
+
+                    <label for="tDate">Transaction Date:</label>
+                    <input type="date" id="tDate" name="transaction_date" required>
+                `;
+            }
+
+            // Function to handle the exchange calculation and UI update
+            function handleExchangeLogic() {
+                const tType = document.getElementById("tType");
+                const thbGroup = document.getElementById("thbInputGroup");
+                const usdGroup = document.getElementById("usdInputGroup");
+                const tAmountTHB = document.getElementById("tAmountTHB");
+                const tAmountUSD = document.getElementById("tAmountUSD");
+                const tRate = document.getElementById("tRate");
+                const tCalculatedAmount = document.getElementById("tCalculatedAmount");
+
+                function updateInputVisibility(type) {
+                    if (type === "buy") { // Input THB, Calculate USD
+                        thbGroup.style.display = "block";
+                        usdGroup.style.display = "none";
+                        tAmountTHB.setAttribute("required", true);
+                        tAmountUSD.removeAttribute("required");
+                        tCalculatedAmount.placeholder = "USD Result";
+                    } else { // Input USD, Calculate THB
+                        thbGroup.style.display = "none";
+                        usdGroup.style.display = "block";
+                        tAmountUSD.setAttribute("required", true);
+                        tAmountTHB.removeAttribute("required");
+                        tCalculatedAmount.placeholder = "THB Result";
+                    }
+                    tCalculatedAmount.value = "";
+                }
+
+                function calculateExchange() {
+                    const type = tType.value;
+                    const rate = parseFloat(tRate.value);
+                    let inputAmount, calculatedAmount;
+
+                    if (isNaN(rate) || rate <= 0) {
+                        tCalculatedAmount.value = "Invalid Rate";
+                        return;
+                    }
+
+                    if (type === "buy") {
+                        inputAmount = parseFloat(tAmountTHB.value);
+                        if (!isNaN(inputAmount) && inputAmount >= 0) {
+                            calculatedAmount = inputAmount / rate;
+                            tCalculatedAmount.value = calculatedAmount.toFixed(2) + " USD";
+                        } else {
+                            tCalculatedAmount.value = "";
+                        }
+                    } else if (type === "sell") {
+                        inputAmount = parseFloat(tAmountUSD.value);
+                        if (!isNaN(inputAmount) && inputAmount >= 0) {
+                            calculatedAmount = inputAmount * rate;
+                            tCalculatedAmount.value = calculatedAmount.toFixed(2) + " THB";
+                        } else {
+                            tCalculatedAmount.value = "";
+                        }
+                    }
+                }
+
+                updateInputVisibility(tType.value);
+
+                tType.addEventListener("change", function() {
+                    updateInputVisibility(this.value);
+                    calculateExchange();
+                });
+
+                tAmountTHB.addEventListener("input", calculateExchange);
+                tAmountUSD.addEventListener("input", calculateExchange);
+                tRate.addEventListener("input", calculateExchange);
+            }
+
+            tOption.addEventListener("change", function () {
+                const option = this.value;
+                dynamicFields.innerHTML = "";
+
+                // ---------------- EXCHANGE ----------------
+                if (option === "exchange") {
+                    dynamicFields.innerHTML = generateExchangeFields();
+                    handleExchangeLogic();
+                } 
+
+                // ---------------- TRADE US ----------------
+                else if (option === "trade_us") {
+                    dynamicFields.innerHTML = `
+                        <label for="tType">Transaction Type:</label>
+                        <select id="tType" name="transaction_type" required>
+                            <option value="buy">Buy</option>
+                            <option value="sell">Sell</option>
+                        </select>
+
+                        <label for="tStockSymbol">Stock Symbol:</label>
+                        <input type="text" id="tStockSymbol" name="stock_symbol" placeholder="e.g. AAPL" required>
+
+                        <label for="tUnit">Unit:</label>
+                        <input type="number" id="tUnit" name="unit" placeholder="e.g. 0.4363553" step="0.0000001" required>
+
+                        <label for="tUnitPrice">Unit Price (USD):</label>
+                        <input type="number" id="tUnitPrice" name="unit_price" placeholder="e.g. 458.34" step="0.01" required>
+
+                        <label for="tGross">Gross Amount (USD):</label>
+                        <input type="number" id="tGross" name="gross_amount_usd" placeholder="e.g. 200.00" step="0.01" required>
+
+                        <label for="tFee">Fee (USD):</label>
+                        <input type="number" id="tFee" name="fee" placeholder="e.g. 0.00" step="0.01" required>
+
+                        <label for="tVat">VAT (USD):</label>
+                        <input type="number" id="tVat" name="vat" placeholder="e.g. 0.00" step="0.01" required>
+
+                        <label for="tDate">Transaction Date:</label>
+                        <input type="date" id="tDate" name="transaction_date" required>
+                    `;
+                }
+
+                // ---------------- TRADE TH ----------------
+                else if (option === "trade_th") {
+                    dynamicFields.innerHTML = `
+                        <label for="tType">Transaction Type:</label>
+                        <select id="tType" name="transaction_type" required>
+                            <option value="buy">Buy</option>
+                            <option value="sell">Sell</option>
+                        </select>
+
+                        <label for="tStockSymbol">Ticker Symbol:</label>
+                        <input type="text" id="tStockSymbol" name="ticker_symbol" placeholder="e.g. PTT" required>
+
+                        <label for="tUnit">Unit:</label>
+                        <input type="number" id="tUnit" name="unit" placeholder="e.g. 100" step="0.0001" required>
+
+                        <label for="tUnitPrice">Unit Price (THB):</label>
+                        <input type="number" id="tUnitPrice" name="unit_price" placeholder="e.g. 35.50" step="0.01" required>
+
+                        <label for="tGross">Gross Amount (THB):</label>
+                        <input type="number" id="tGross" name="gross_amount_usd" placeholder="e.g. 3550.00" step="0.01" required>
+
+                        <label for="tFee">Fee (THB):</label>
+                        <input type="number" id="tFee" name="fee" placeholder="e.g. 10.00" step="0.01" required>
+
+                        <label for="tVat">VAT (THB):</label>
+                        <input type="number" id="tVat" name="vat" placeholder="e.g. 0.70" step="0.01" required>
+
+                        <label for="tDate">Transaction Date:</label>
+                        <input type="date" id="tDate" name="date" required>
+
+                        <label for="tSecurityType">Securities Type:</label>
+                        <select id="tSecurityType" name="securities_type" required>
+                            <option value="">-- Select Type --</option>
+                            <option value="stock">Stock</option>
+                            <option value="mutual_fund">Mutual Fund</option>
+                        </select>
+
+                        <div id="mutualFundField" style="display:none; margin-top:10px;">
+                            <label for="tFundType">Mutual Fund Type:</label>
+                            <select id="tFundType" name="mutual_fund_type" required>
+                                <option value="">-- Select Type --</option>
+                                <option value="THAIESG">THAIESG</option>
+                                <option value="RMF">RMF</option>
+                                <option value="SSF">SSF</option>
+                                <option value="_">_</option>
+                            </select>
+                        </div>
+                    `;
+
+                    const securityType = document.getElementById("tSecurityType");
+                    const mutualFundField = document.getElementById("mutualFundField");
+                    const fundTypeInput = document.getElementById("tFundType");
+
+                    securityType.addEventListener("change", function () {
+                        if (this.value === "mutual_fund") {
+                            mutualFundField.style.display = "block";
+                            fundTypeInput.setAttribute("required", true);
+                        } else {
+                            mutualFundField.style.display = "none";
+                            fundTypeInput.removeAttribute("required");
+                        }
+                    });
+                }
+            });
+        </script>
+
+
+        </main>
+    </div>
+    <script src="js/main.js"></script>
+    <script src="js/transaction.js"></script>
 </body>
 </html>
