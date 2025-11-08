@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (email === "user@test.com" && pass === "123456") {
           localStorage.setItem("user", JSON.stringify({ email }));
-          window.location.href = "dashboard.html";
+          window.location.href = "account.html";
         } else {
           alert("Invalid credentials. Try user@test.com / 123456");
         }
